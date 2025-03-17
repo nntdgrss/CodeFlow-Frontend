@@ -3,6 +3,7 @@
 import { Spinner } from '@/components/ui/spinner'
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { Spoiler } from 'spoiled'
 
 export default function ProfilePage() {
 	const { data: session, status } = useSession()
@@ -55,7 +56,9 @@ export default function ProfilePage() {
 							</div>
 							<div>
 								<label className='block text-gray-400 text-sm'>Email</label>
-								<p className='text-white'>{session.user.email}</p>
+								<p className='text-white'>
+									<Spoiler>{session.user.email}</Spoiler>
+								</p>
 							</div>
 						</div>
 

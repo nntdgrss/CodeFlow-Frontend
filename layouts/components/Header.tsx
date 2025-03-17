@@ -1,17 +1,25 @@
 'use client'
 
+import LoadingSkeleton from '@/components/ui/loading-skeleton'
 import { Menu } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export default function Header() {
 	const router = useRouter()
+	const { data: session, status } = useSession()
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
 	const NAV_ITEMS = [
 		{
-			name: 'О проекте',
+			name: 'О платформе',
 			href: '/about',
+		},
+		{
+			name: 'Проекты',
+			href: '/projects',
+			show: !!session?.user,
 		},
 	]
 
@@ -31,23 +39,35 @@ export default function Header() {
 
 				{/* Десктопная навигация */}
 				<div className='hidden md:flex items-center space-x-6'>
-					<nav className='flex space-x-6'>
-						{NAV_ITEMS.map(item => (
-							<button
-								key={item.href}
-								onClick={() => router.push(item.href)}
-								className='text-gray-300 hover:text-green-400 hover:underline underline-offset-8 transition'
-							>
-								{item.name}
-							</button>
-						))}
+					<nav
+						className={`flex ${
+							status === 'loading' ? 'space-x-2' : 'space-x-6'
+						}`}
+					>
+						{status === 'loading' ? (
+							<>
+								<LoadingSkeleton className='w-24' variant='text' />
+								<LoadingSkeleton className='w-28' variant='text' />
+								<LoadingSkeleton className='w-32' variant='text' />
+							</>
+						) : (
+							NAV_ITEMS.filter(item => item.show !== false).map(item => (
+								<button
+									key={item.href}
+									onClick={() => router.push(item.href)}
+									className='text-gray-300 hover:text-green-400 hover:underline underline-offset-8 transition'
+								>
+									{item.name}
+								</button>
+							))
+						)}
 					</nav>
 
 					<button
 						onClick={() => router.push('/profile')}
 						className='px-4 py-2 border border-green-400 rounded-lg text-green-400 hover:bg-green-400/50 hover:text-black transition'
 					>
-						<span>Личный кабинет</span>
+						<span>{session?.user ? 'Личный кабинет' : 'Войти'}</span>
 					</button>
 				</div>
 
