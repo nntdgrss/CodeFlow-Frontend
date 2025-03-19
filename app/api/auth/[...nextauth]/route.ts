@@ -56,16 +56,23 @@ const handler = NextAuth({
 	callbacks: {
 		async jwt({ token, user }) {
 			if (user) {
+				// Сохраняем данные из response в token
+				token.id = user.id
+				token.email = user.email
 				token.accessToken = user.accessToken
 				token.username = user.username
 			}
 			return token
 		},
 		async session({ session, token }) {
-			if (token) {
-				session.user.username = token.username
-				session.accessToken = token.accessToken
+			// Добавляем данные из token в session
+			session.user = {
+				...session.user,
+				id: token.id,
+				email: token.email,
+				username: token.username,
 			}
+			session.accessToken = token.accessToken
 			return session
 		},
 	},

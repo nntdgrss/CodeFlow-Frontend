@@ -1,0 +1,15 @@
+.paragraph {
+	font-size: 16px;
+	line-height: 24px;
+	color: #ededed;
+}
+
+.title {
+	font-size: 0.875rem; /* text-sm */
+	color: #6b7280; /* text-gray-500 */
+	margin-top: 0.25rem; /* mt-1 */
+	user-select: none; /* Prevent text selection */
+	-webkit-user-select: none; /* For Safari */
+	-moz-user-select: none; /* For Firefox */
+	-ms-user-select: none; /* For IE/Edge */
+}

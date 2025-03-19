@@ -2,23 +2,69 @@
 
 import BackgroundRoundedGradient from '@/components/ui/background-rounded-gradient'
 import { Spinner } from '@/components/ui/spinner'
+import { useBackend } from '@/hooks/useBackend'
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import InfoBlock from './blocks/InfoBlock'
 import TodoBlock from './blocks/TodoBlock'
+import { FetchProjectResponse } from './types/project-id.types'
 
 export default function ProjectPage() {
 	const { data: session, status } = useSession()
+	const [projectData, setProjectData] = useState<FetchProjectResponse | null>(
+		null
+	)
 	const router = useRouter()
 	const params = useParams()
 	const projectId = params.id
+	const backend = useBackend()
 
 	useEffect(() => {
-		if (status !== 'loading' && !session?.user) {
+		let isSubscribed = true // Флаг для отмены запроса при размонтировании
+
+		// Ждем загрузку сессии
+		if (status === 'loading') return
+
+		// Проверяем авторизацию
+		if (!session?.user) {
 			router.push('/auth')
+			return
 		}
-	}, [session, status, router])
+
+		// Получаем данные проекта
+		const fetchProjectData = async () => {
+			const [result, error] = await backend.get<FetchProjectResponse>(
+				`/projects/${projectId}`
+			)
+
+			// Проверяем что компонент все еще смонтирован
+			if (!isSubscribed) return
+
+			if (error) {
+				if (error === 'UNAUTHORIZED') {
+					router.push('/auth')
+					return
+				}
+				console.error('Ошибка при получении данных проекта:', error)
+				return
+			}
+
+			if (!result) {
+				console.error('Не удалось получить данные проекта')
+				return
+			}
+
+			setProjectData(result)
+		}
+
+		fetchProjectData()
+
+		// Cleanup функция
+		return () => {
+			isSubscribed = false
+		}
+	}, [session, status, projectId]) // Убрали router из зависимостей
 
 	if (status === 'loading') {
 		return (
@@ -36,7 +82,13 @@ export default function ProjectPage() {
 		<div className='container w-full mx-auto px-4 py-12'>
 			<BackgroundRoundedGradient />
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
-				<InfoBlock />
+				<InfoBlock
+					name={projectData?.project.name}
+					description={projectData?.project.description}
+					createdAt={projectData?.project.createdAt}
+					updatedAt={projectData?.project.updatedAt}
+					projectId={String(projectId)}
+				/>
 				<TodoBlock
 					boards={4}
 					projectId={String(projectId)}

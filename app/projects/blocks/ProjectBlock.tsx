@@ -28,7 +28,7 @@ export default function ProjectBlock({
 	return (
 		<>
 			<div
-				className='group relative bg-zinc-800/30 backdrop-blur-xl rounded-xl p-6 cursor-pointer hover:bg-zinc-800/40 transition-all duration-500 border-transparent border border-solid hover:border-zinc-500/50'
+				className='group relative bg-zinc-800/30 backdrop-blur-xl rounded-xl p-6 cursor-pointer hover:bg-zinc-800/40 transition-all duration-500 border-transparent border border-solid hover:border-zinc-500/50 min-w-[25rem]'
 				onClick={() => router.push(link)}
 			>
 				{/* Градиент карточки */}
